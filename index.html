@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salle du comité</title>
+<meta name="description" content="Drills oraux quotidiens pour présenter une DD TMT à des fonds.">
+<meta name="theme-color" content="#15203a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Comité">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column mobile "instrument panel": a stopwatch-led drill card, everything reachable one-handed */
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --ink: #15203a; --muted: #5d6680; --line: #d9dee8;
+  --accent: #d08a00; --accent-ink: #1a1300; --good: #2c7a55; --bad: #c0392b; --soft: #e8ecf3;
+  --good-soft: rgba(44,122,85,.14); --bad-soft: rgba(192,57,43,.13);
+  --f-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1424; --surface: #161e33; --ink: #e8ecf5; --muted: #98a2bc; --line: #2a3450;
+    --accent: #f2b233; --good: #5fc391; --bad: #ef6b5b; --soft: #1e2840;
+    --good-soft: rgba(95,195,145,.16); --bad-soft: rgba(239,107,91,.16);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-top: calc(12px + env(safe-area-inset-top, 0px)); padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; letter-spacing: .01em; text-align: left; color: var(--ink); }
+.brand small { display: block; font-family: var(--f-body); font-weight: 400; font-size: .8rem; color: var(--muted); letter-spacing: 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--muted); font: 600 .8rem var(--f-mono); padding: 6px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; line-height: 1.15; text-wrap: balance; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.05rem; }
+.eyebrow { font: 600 .72rem var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.hero { border: 2px solid var(--ink); }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 380px) { .grid2 { grid-template-columns: 1fr; } }
+.tile { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: var(--ink); cursor: pointer; display: flex; flex-direction: column; gap: 4px; font: inherit; min-width: 0; }
+.tile b { font-family: var(--f-display); font-size: 1rem; }
+.tile span { color: var(--muted); font-size: .82rem; line-height: 1.35; }
+button.btn { font: 600 1rem var(--f-body); border-radius: 12px; padding: 12px 16px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); cursor: pointer; }
+button.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+button.btn.amber { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+button.btn.block { width: 100%; }
+button.btn:disabled { opacity: .5; cursor: default; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.link { background: none; border: 0; color: var(--muted); font: 500 .9rem var(--f-body); text-decoration: underline; cursor: pointer; padding: 4px 0; }
+.plain { background: none; border: 0; padding: 0; cursor: pointer; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 .75rem var(--f-mono); padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--ink); }
+.chip.lv { background: var(--ink); color: var(--bg); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.defects { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.defects li { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.defects li:last-child { border-bottom: 0; padding-bottom: 0; }
+.defects .n { font: 600 .8rem var(--f-mono); color: var(--muted); white-space: nowrap; }
+.facts { margin: 0; padding-left: 18px; font-size: .92rem; display: flex; flex-direction: column; gap: 4px; }
+.question { font-family: var(--f-display); font-size: 1.25rem; font-weight: 600; line-height: 1.3; }
+.speaker { font: 600 .75rem var(--f-mono); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.clock { font: 600 3.4rem var(--f-mono); font-variant-numeric: tabular-nums; text-align: center; letter-spacing: -.02em; line-height: 1; }
+.clock.warn { color: var(--accent); }
+.clock.cut { color: var(--bad); }
+.bar { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); }
+.meter { height: 34px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+.meter i { width: 6px; border-radius: 3px; background: var(--ink); height: 4px; transition: height .08s; }
+.mic { width: 132px; height: 132px; border-radius: 50%; border: 0; align-self: center; background: var(--accent); color: var(--accent-ink); font: 700 1.05rem var(--f-display); cursor: pointer; box-shadow: 0 0 0 8px var(--soft); }
+.mic.rec { background: var(--bad); color: #fff; }
+textarea, input[type="text"], input[type="password"] { width: 100%; font: 1rem/1.5 var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+textarea { min-height: 150px; resize: vertical; }
+.hint { font-size: .85rem; color: var(--muted); margin: 0; }
+.score { display: flex; align-items: baseline; gap: 8px; }
+.score b { font: 600 2.6rem var(--f-mono); font-variant-numeric: tabular-nums; line-height: 1; }
+.score span { color: var(--muted); font-family: var(--f-mono); }
+.fix { border-left: 4px solid var(--accent); padding: 4px 0 4px 12px; display: flex; flex-direction: column; gap: 4px; }
+.fix b { font-family: var(--f-display); font-size: 1.1rem; }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.metric { background: var(--soft); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.metric b { font: 600 1.1rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.metric span { font-size: .72rem; color: var(--muted); line-height: 1.25; }
+.cmp { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+.cmp .score { justify-content: center; }
+.diff { line-height: 1.9; margin: 0; }
+.diff .miss { background: var(--bad-soft); color: var(--bad); border-radius: 4px; padding: 0 3px; font-weight: 600; }
+.hist { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.hist li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+.hist li:last-child { border-bottom: 0; }
+.hist .s { font: 600 .9rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.hist small { color: var(--muted); display: block; }
+.notice { font-size: .85rem; padding: 10px 12px; border-radius: 10px; background: var(--soft); color: var(--muted); }
+.notice.err { color: var(--bad); background: var(--bad-soft); }
+.thinking { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } .meter i { transition: none; } }
+.transcript { white-space: pre-wrap; font-size: .95rem; margin: 0; }
+.transcript mark { background: var(--bad-soft); color: var(--bad); border-radius: 3px; padding: 0 2px; }
+.trap { display: flex; flex-wrap: wrap; gap: 6px; }
+.pron { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.pron li { display: flex; flex-direction: column; gap: 2px; }
+.pron b { font-family: var(--f-display); font-size: 1.05rem; }
+details summary { cursor: pointer; font-weight: 600; }
+.sticky-act { position: sticky; bottom: 0; padding-bottom: env(safe-area-inset-bottom, 0px); background: linear-gradient(to top, var(--bg) 70%, rgba(0,0,0,0)); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+label.field { display: flex; flex-direction: column; gap: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app" aria-live="polite"></div>
+<script>
+(function () {
+"use strict";
+
+/* ================= helpers ================= */
+if (!Element.prototype.replaceChildren) Element.prototype.replaceChildren = function () {
+  while (this.firstChild) this.removeChild(this.firstChild);
+  this.append.apply(this, arguments);
+};
+var $app = document.getElementById("app");
+function h(tag, attrs) {
+  var el = document.createElement(tag), kids = Array.prototype.slice.call(arguments, 2);
+  if (attrs) Object.keys(attrs).forEach(function (k) {
+    var v = attrs[k];
+    if (v == null || v === false) return;
+    if (k === "class") el.className = v;
+    else if (k.slice(0, 2) === "on") el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  });
+  (function add(list) { list.forEach(function (c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) return add(c);
+    el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }); })(kids);
+  return el;
+}
+function fmt(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+function wordsOf(t) { return (String(t).toLowerCase().match(/[\p{L}\p{N}%'’-]+/gu) || []); }
+function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+
+/* ================= storage (this device only) ================= */
+var KEY = "sdc.v1";
+var DB = load();
+function load() {
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+  d = d || {};
+  d.settings = Object.assign({ key: "", model: "gemini-2.5-flash", lang: "en" }, d.settings || {});
+  d.profile = Object.assign({ level: 2, streak: 0, defects: {}, trapWords: {}, focus: "" }, d.profile || {});
+  d.sessions = d.sessions || [];
+  return d;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+/* ================= content ================= */
+var DRILLS = {
+  partner: { name: "Le partner te cuisine", sub: "Question piège + relance. 60 s, coupé à 45 s au niveau 3.", limit: 60 },
+  exec:    { name: "Exec summary 90 s", sub: "La conclusion de ta DD au comité d'investissement.", limit: 90 },
+  small:   { name: "Small talk & posture", sub: "Ouverture de call, dîner client, networking. 30 s.", limit: 30 },
+  artic:   { name: "Articulation", sub: "Lis puis répète de mémoire. Retour sur ta prononciation.", limit: 25 }
+};
+var LEVELS = { 1: "Associate curieux", 2: "Partner sceptique", 3: "Comité hostile" };
+var DEFECTS = {
+  context_first: "Contexte avant la conclusion", no_number: "Pas de chiffre au début", digression: "Digressions",
+  caves_pushback: "Cède au premier push-back", hedging: "Trop de précautions (hedging)", fillers: "Mots parasites",
+  false_starts: "Faux départs / reformulations", long_pauses: "Pauses longues / blancs", too_long: "Trop long",
+  no_so_what: "Pas de so what", weak_close: "Fin qui s'éteint", dodges: "Esquive la question",
+  stiff_smalltalk: "Small talk raide ou trop long", pronunciation: "Prononciation / mots avalés", monotone: "Voix monotone"
+};
+var DEFECT_DRILL = { context_first: "exec", no_number: "partner", digression: "partner", caves_pushback: "partner", hedging: "partner", fillers: "partner", false_starts: "artic", long_pauses: "exec", too_long: "exec", no_so_what: "exec", weak_close: "exec", dodges: "partner", stiff_smalltalk: "small", pronunciation: "artic", monotone: "exec" };
+var ARTIC = {
+  en: [
+    "The heterogeneity of churn across cohorts suggests the incumbent's pricing power is structurally weaker than the management case implies.",
+    "We see a three to four percent annual erosion in average revenue per user, partially offset by penetration gains in the enterprise segment.",
+    "Our base case assumes a twelve percent compound annual growth rate, versus fifteen percent in the management case, primarily due to slower hyperscaler absorption.",
+    "The addressable market remains fragmented, and consolidation is likely to be driven by sponsors pursuing a buy-and-build thesis.",
+    "Customer interviews consistently highlighted switching costs, integration depth and regulatory certification as the key purchasing criteria.",
+    "Contracted backlog provides visibility on roughly eighty percent of next year's revenue, which materially de-risks the near-term trajectory.",
+    "Tenancy ratios remain below peers, which we view as an upside lever rather than a structural weakness.",
+    "Programmatic advertising is cannibalising linear inventory faster than the business plan anticipates, particularly in the eighteen to thirty-four demographic."
+  ],
+  fr: [
+    "L'hétérogénéité du churn entre cohortes suggère que le pouvoir de prix de l'opérateur historique est structurellement plus faible que ne le laisse entendre le management case.",
+    "Notre base case retient un taux de croissance annuel moyen de douze pour cent, contre quinze pour cent dans le plan du management, principalement en raison d'une absorption plus lente par les hyperscalers.",
+    "Le carnet de commandes contractualisé couvre environ quatre-vingts pour cent du chiffre d'affaires de l'an prochain, ce qui sécurise la trajectoire à court terme.",
+    "La fragmentation du marché adressable rend probable une consolidation menée par des fonds adoptant une stratégie de buy-and-build."
+  ]
+};
+var BASE_CASE = {
+  title: "NordFibre — opérateur FTTH wholesale (cas de référence)",
+  facts: [
+    "Open-access FTTH wholesale network, 2.1m homes passed in Northern Europe, €310m revenue, 58% EBITDA margin",
+    "Take-up rate 41% today; management case assumes 60% by year 5, our base case 52%",
+    "Market CAGR 7% (base case) vs 11% (management case); gap driven by slower copper switch-off",
+    "Two retail ISPs account for 64% of wholesale revenue; contracts run to 2031 with take-or-pay floors",
+    "Overbuild risk: a competing network has announced 400k homes in overlapping areas"
+  ]
+};
+var BASELINE = [
+  { id: "b-exec", drill: "exec", label: "Exec summary NordFibre", prompt: "Give the investment committee your 90-second conclusion on NordFibre: is the management case credible, and what does it mean for the bid?" },
+  { id: "b-p1", drill: "partner", label: "Partner Q1 — take-up", prompt: "Why should I believe 52% take-up when management is telling me 60% and they know the network better than you?" },
+  { id: "b-p2", drill: "partner", label: "Partner Q2 — concentration", prompt: "Two ISPs are 64% of revenue. Isn't this just a disguised customer concentration problem?" },
+  { id: "b-p3", drill: "partner", label: "Partner Q3 — overbuild", prompt: "Give me one reason not to walk away given the overbuild announcement." },
+  { id: "b-artic", drill: "artic", label: "Articulation — texte fixe", prompt: ARTIC.en[0] }
+];
+
+/* ================= profile logic ================= */
+function topDefects(n) {
+  var d = DB.profile.defects || {};
+  return Object.keys(d).map(function (k) { return { key: k, label: d[k].label || DEFECTS[k] || k, count: d[k].count || 0 }; })
+    .sort(function (a, b) { return b.count - a.count; }).slice(0, n || 3);
+}
+function addDefects(list, weight) {
+  weight = weight || 1;
+  (list || []).forEach(function (x) {
+    var key = String((x && x.key) || x || "").slice(0, 40); if (!key) return;
+    var prev = DB.profile.defects[key] || { label: (x && x.label) || DEFECTS[key] || key, count: 0 };
+    DB.profile.defects[key] = { label: prev.label, count: prev.count + weight, last: new Date().toISOString() };
+  });
+}
+function addTrapWords(words) { words.forEach(function (w) { DB.profile.trapWords[w] = (DB.profile.trapWords[w] || 0) + 1; }); }
+function drillOfTheDay() {
+  var top = topDefects(1)[0];
+  if (top && DEFECT_DRILL[top.key]) return { drill: DEFECT_DRILL[top.key], why: "Cible ton défaut n°1 : " + top.label.toLowerCase() };
+  var order = ["partner", "exec", "artic", "small"], last = {};
+  DB.sessions.forEach(function (s) { if (!last[s.drill] || s.createdAt > last[s.drill]) last[s.drill] = s.createdAt; });
+  var pick = order.filter(function (d) { return !last[d]; })[0] || order.slice().sort(function (a, b) { return (last[a] || "").localeCompare(last[b] || ""); })[0];
+  return { drill: pick, why: DB.sessions.length ? "Le drill que tu n'as pas fait depuis le plus longtemps" : "Pour commencer : le cœur de ton métier" };
+}
+
+/* ================= audio: record, WAV, pauses ================= */
+var REC = null;
+function startRecording(onLevel) {
+  var Ctx = window.AudioContext || window.webkitAudioContext;
+  var ctx = new Ctx(); // created inside the tap so iOS allows it
+  REC = { ctx: ctx, chunks: [], stream: null, proc: null, src: null };
+  if (ctx.state === "suspended") ctx.resume();
+  return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } })
+    .then(function (stream) {
+      REC.stream = stream;
+      REC.src = ctx.createMediaStreamSource(stream);
+      REC.proc = ctx.createScriptProcessor(4096, 1, 1);
+      REC.proc.onaudioprocess = function (e) {
+        var data = new Float32Array(e.inputBuffer.getChannelData(0));
+        REC.chunks.push(data);
+        if (onLevel) { var s = 0; for (var i = 0; i < data.length; i += 8) s += data[i] * data[i]; onLevel(Math.sqrt(s / (data.length / 8))); }
+      };
+      REC.src.connect(REC.proc); REC.proc.connect(ctx.destination);
+    });
+}
+function stopRecording() {
+  if (!REC) return null;
+  var r = REC; REC = null;
+  try { r.src && r.src.disconnect(); r.proc && r.proc.disconnect(); } catch (e) {}
+  try { r.stream && r.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+  var rate = r.ctx.sampleRate; try { r.ctx.close(); } catch (e) {}
+  var len = r.chunks.reduce(function (a, c) { return a + c.length; }, 0), all = new Float32Array(len), o = 0;
+  r.chunks.forEach(function (c) { all.set(c, o); o += c.length; });
+  var pcm = downsample(all, rate, 16000);
+  return { wav: encodeWav(pcm, 16000), stats: speechStats(pcm, 16000), secs: pcm.length / 16000 };
+}
+function cancelRecording() { if (REC) stopRecording(); }
+function downsample(buf, from, to) {
+  if (from === to) return buf;
+  var ratio = from / to, out = new Float32Array(Math.floor(buf.length / ratio));
+  for (var i = 0; i < out.length; i++) {
+    var a = Math.floor(i * ratio), b = Math.min(buf.length, Math.floor((i + 1) * ratio)), s = 0;
+    for (var j = a; j < b; j++) s += buf[j];
+    out[i] = s / Math.max(1, b - a);
+  }
+  return out;
+}
+function encodeWav(pcm, rate) {
+  var buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+  function str(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+  str(0, "RIFF"); v.setUint32(4, 36 + pcm.length * 2, true); str(8, "WAVE"); str(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, "data"); v.setUint32(40, pcm.length * 2, true);
+  for (var i = 0, o = 44; i < pcm.length; i++, o += 2) { var s = Math.max(-1, Math.min(1, pcm[i])); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true); }
+  return new Blob([buf], { type: "audio/wav" });
+}
+/* Energy-based pause detection: 50 ms frames, adaptive threshold above the noise floor. */
+function speechStats(pcm, rate) {
+  var F = Math.round(rate * 0.05), n = Math.floor(pcm.length / F), rms = [];
+  for (var i = 0; i < n; i++) { var s = 0; for (var j = i * F; j < (i + 1) * F; j++) s += pcm[j] * pcm[j]; rms.push(Math.sqrt(s / F)); }
+  if (!n) return { onset: 0, pauses: 0, longest: 0, speaking: 0 };
+  var sorted = rms.slice().sort(function (a, b) { return a - b; });
+  var floor = sorted[Math.floor(n * 0.15)], peak = sorted[Math.floor(n * 0.95)];
+  var thr = Math.max(floor * 2.5, floor + (peak - floor) * 0.18, 0.004);
+  var voiced = rms.map(function (x) { return x > thr; });
+  var first = voiced.indexOf(true), last = voiced.lastIndexOf(true);
+  if (first < 0) return { onset: n * 0.05, pauses: 0, longest: 0, speaking: 0 };
+  var pauses = 0, longest = 0, run = 0, speak = 0;
+  for (var k = first; k <= last; k++) {
+    if (voiced[k]) { if (run * 0.05 >= 1.5) pauses++; longest = Math.max(longest, run * 0.05); run = 0; speak++; }
+    else run++;
+  }
+  return { onset: +(first * 0.05).toFixed(1), pauses: pauses, longest: +longest.toFixed(1), speaking: +(speak * 0.05).toFixed(1) };
+}
+function blobToB64(blob) {
+  return new Promise(function (res, rej) {
+    var fr = new FileReader(); fr.onload = function () { res(String(fr.result).split(",")[1]); }; fr.onerror = rej; fr.readAsDataURL(blob);
+  });
+}
+
+/* ================= Gemini ================= */
+function gemini(parts, json) {
+  var key = DB.settings.key;
+  if (!key) return Promise.reject({ code: "no_key" });
+  var model = (DB.settings.model || "gemini-2.5-flash").trim();
+  var body = { contents: [{ role: "user", parts: parts }], generationConfig: { temperature: 0.7 } };
+  if (json !== false) body.generationConfig.responseMimeType = "application/json";
+  return fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent", {
+    method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body)
+  }).then(function (r) {
+    if (!r.ok) return r.text().then(function (t) {
+      var code = r.status === 429 ? "rate_limited" : (r.status === 400 && /API key/i.test(t)) || r.status === 403 ? "bad_key" : r.status === 404 ? "bad_model" : "upstream";
+      throw { code: code, status: r.status, message: t.slice(0, 300) };
+    });
+    return r.json();
+  }).then(function (d) {
+    var c = d.candidates && d.candidates[0];
+    var text = c && c.content && c.content.parts ? c.content.parts.map(function (p) { return p.text || ""; }).join("") : "";
+    if (!text) throw { code: "empty", message: (c && c.finishReason) || "no text" };
+    if (json === false) return text;
+    return parseJSON(text);
+  }, function (e) { if (e && e.code) throw e; throw { code: "network", message: String(e) }; });
+}
+function parseJSON(t) {
+  try { return JSON.parse(t); } catch (e) {}
+  var m = t.match(/```(?:json)?\s*([\s\S]*?)```/); if (m) try { return JSON.parse(m[1]); } catch (e) {}
+  var a = t.indexOf("{"), b = t.lastIndexOf("}"); if (a >= 0 && b > a) try { return JSON.parse(t.slice(a, b + 1)); } catch (e) {}
+  throw { code: "invalid_json", message: t.slice(0, 200) };
+}
+function audioPart(b64) { return { inline_data: { mime_type: "audio/wav", data: b64 } }; }
+function errText(e) {
+  var c = e && e.code;
+  if (c === "no_key") return "Ajoute ta clé Gemini dans les réglages.";
+  if (c === "bad_key") return "La clé Gemini est refusée. Vérifie-la dans les réglages.";
+  if (c === "bad_model") return "Le modèle indiqué dans les réglages n'existe pas. Remets gemini-2.5-flash ou un modèle listé dans AI Studio.";
+  if (c === "rate_limited") return "Limite gratuite de Gemini atteinte pour le moment. Attends une minute, puis relance.";
+  if (c === "network") return "Pas de connexion. Vérifie le réseau, puis relance.";
+  if (c === "invalid_json") return "Réponse mal formée. Relance.";
+  return "Gemini n'a pas répondu (" + (c || "erreur") + (e && e.status ? " " + e.status : "") + "). Relance dans un instant.";
+}
+
+/* ================= prompts ================= */
+var LANGNAME = { en: "English", fr: "French" };
+var SPEAKER = "The speaker is a TMT strategy consultant presenting commercial due diligence to partners and investment committees of large-cap private equity funds. Target style: answer first (Minto pyramid), a number early, MECE, a clear so-what, concise, holds position under push-back with evidence, articulate, calm senior presence.";
+var VERBATIM = "Transcribe the audio VERBATIM in its original language: keep every filler (um, uh, er, like, you know, euh, du coup, en fait…), repetition, false start and self-correction exactly as spoken; mark silences longer than about one second as [pause]. Do not clean anything up.";
+function profileLine() {
+  var t = topDefects(3);
+  var s = t.length ? "Speaker's known recurring defects (most frequent first): " + t.map(function (x) { return x.label + " (" + x.key + ")"; }).join("; ") + "." : "No defect profile yet.";
+  if (DB.profile.focus) s += " Current weekly focus: " + DB.profile.focus + ".";
+  return s;
+}
+function defectSchema() { return "\"defects\": [up to 3 objects {\"key\": one of " + Object.keys(DEFECTS).join("|") + " or a new snake_case key, \"label\": French label}]"; }
+function genPrompt(drill, lang, level) {
+  var L = LANGNAME[lang];
+  var base = "Invent a FICTIONAL but realistic TMT deal (pick at random among: FTTH/fibre operator, data centres, vertical SaaS, B2B telecom, media group, tower company, adtech, IT services, satellite connectivity, payments). Use a made-up company name.\n";
+  if (drill === "partner") return SPEAKER + "\n" + base + profileLine() + "\nDifficulty level " + level + " (1 = curious associate, 2 = skeptical partner who pushes twice on every number, 3 = hostile investment committee: blunt, dismissive, e.g. 'give me one reason not to walk away'). If the defect profile names a weakness, design the trap to exploit it.\nWrite in " + L + ". Reply with only JSON: {\"title\": \"company — one-line description\", \"facts\": [5 short fact-pack bullets with numbers: market, CAGR base vs management case, share, key risk], \"question\": \"the partner's one tough question, spoken style, max 35 words\"}";
+  if (drill === "exec") return SPEAKER + "\n" + base + "Write in " + L + ". Reply with only JSON: {\"title\": \"company — one-line description\", \"facts\": [6 short fact-pack bullets with numbers, including base case vs management case and 1-2 key risks, enough to form a clear recommendation], \"question\": \"the IC chair's request, e.g. 'You have 90 seconds: what's your view?', tailored to the deal, max 25 words\"}";
+  return SPEAKER + "\nInvent a realistic small-talk / senior-presence moment: e.g. the first 2 minutes of a call with a fund partner, a client dinner seated next to an IC member, a networking drink at an industry conference, an elevator with the fund's managing partner. Write in " + L + ". Reply with only JSON: {\"title\": \"setting in a few words\", \"facts\": [2-3 bullets of context: who the person is, what's going on in their world, the mood], \"question\": \"what the other person says to open, spoken style, max 30 words\"}";
+}
+function relancePrompt(S) {
+  return SPEAKER + "\nYou are the fund partner (difficulty level " + S.level + ": " + LEVELS[S.level] + "). Case: " + S.caseObj.title + "\nFacts: " + S.caseObj.facts.join(" | ") + "\nYour question was: " + S.caseObj.question +
+    "\nThe attached audio is the consultant's spoken answer.\n1) " + VERBATIM + "\n2) " + profileLine() + " Push back once, in " + LANGNAME[S.lang] + ", on the weakest point of the answer (a number, an assumption, a dodge). If the profile says they cave under push-back, push harder. Spoken style, max 30 words.\nReply with only JSON: {\"transcript\": \"...\", \"followup\": \"...\"}";
+}
+function feedbackPrompt(S, att, prev) {
+  var D = S.drill;
+  var crit = D === "partner"
+    ? "Criteria: answer to the question in the first sentence; a number in the first ~10 seconds; no digression; handles 'I don't know' honestly (what you know + how you'd find out); in the follow-up, holds position with evidence or concedes precisely, never caves vaguely."
+    : D === "exec"
+    ? "Criteria: governing thought first (recommendation / answer), then 2-3 MECE supporting points with numbers, explicit so-what for the bid, clear close; fits 90 s; no filler; confident, varied intonation."
+    : "Criteria: warm, natural, brief; picks up on what the other person said; asks a good question back; projects senior presence (calm, a point of view, not servile); no corporate jargon; under 30 s.";
+  var t = SPEAKER + "\nDrill: " + DRILLS[D].name + ". Language: " + LANGNAME[S.lang] + "." + (D === "partner" ? " Difficulty level " + S.level + "." : "") +
+    "\nCase: " + S.caseObj.title + "\nContext: " + S.caseObj.facts.join(" | ") + "\nPrompt the speaker received: " + S.caseObj.question;
+  var st = att.stats;
+  if (att.relanceOf) {
+    t += "\nThe speaker's first answer (verbatim): <<<" + att.relanceOf.transcript + ">>>\nPartner follow-up: " + att.relanceOf.followup +
+      "\nThe attached audio is the speaker's answer to the FOLLOW-UP. Judge the whole exchange (first answer + follow-up answer).";
+  } else t += "\nThe attached audio is the speaker's answer.";
+  t += "\nMeasured on the audio: " + Math.round(att.secs) + " s recorded, speech starts after " + st.onset + " s, " + st.pauses + " pauses over 1.5 s (longest " + st.longest + " s), " + st.speaking + " s of actual speech.";
+  t += "\n" + crit + " Also judge delivery from the audio itself: pace, fillers, pauses, intonation, clarity of pronunciation (name specific words that were swallowed or mispronounced, if any).\n" + profileLine();
+  if (prev) t += "\nThis is a SECOND attempt at the same prompt. First attempt scored " + prev.score + "/10 and the one fix asked was: \"" + prev.fix.title + " — " + prev.fix.detail + "\". Judge whether the fix was applied.";
+  t += "\nBe demanding like a senior partner coach; scores of 8+ are rare. Write all feedback text in French (the speaker's coaching language), quoting the speaker's words in the original language.\n" + VERBATIM +
+    "\nReply with only JSON: {\"transcript\": \"verbatim transcript of the attached audio\", \"fillers\": integer count of filler words in it, \"falseStarts\": integer count of false starts or self-corrections, \"secondsToConclusion\": seconds into the audio before the answer/recommendation was stated, or null if never stated, \"numberEarly\": true/false, \"heldPushback\": true/false/null (null if no follow-up), \"score\": integer 0-10, \"worked\": \"one sentence on what worked\", \"fix\": {\"title\": \"the ONE most important fix, imperative, max 10 words\", \"detail\": \"how, concretely, quoting their words, max 40 words\"}, \"delivery\": \"one sentence on voice, pace and pronunciation\", " +
+    (prev ? "\"fixApplied\": true/false, \"verdict\": \"one sentence comparing v2 to v1\", " : "") + defectSchema() + "}";
+  return t;
+}
+function articPrompt(S, fromMemory) {
+  return "You are an English/French pronunciation and articulation coach for a strategy consultant (native French speaker" + (S.lang === "en" ? ", speaking English" : "") + ").\nTarget sentence: \"" + S.caseObj.question + "\"\nThe attached audio is the speaker " + (fromMemory ? "repeating it FROM MEMORY" : "reading it aloud") + ".\n" + VERBATIM +
+    "\nThen evaluate articulation and pronunciation precisely: words swallowed, wrong word stress, wrong vowel or consonant (e.g. th, h, r, schwa), choppy rhythm, hesitations." + (fromMemory ? " Also note words that were changed or dropped versus the target." : "") +
+    " Feedback in French. Reply with only JSON: {\"transcript\": \"...\", \"score\": integer 0-10, \"issues\": [up to 5 objects {\"word\": \"the target word\", \"issue\": \"what went wrong, in French\", \"tip\": \"how to say it, with a simple phonetic hint\"}], \"rhythm\": \"one sentence on fluency and rhythm\", \"fix\": \"the ONE thing to do on the next try, max 12 words\"}";
+}
+function modelPrompt(S) {
+  var best = S.v2 || S.v1;
+  return SPEAKER + "\nCase: " + S.caseObj.title + "\nFacts: " + S.caseObj.facts.join(" | ") + "\nPrompt: " + S.caseObj.question + "\nThe speaker's best attempt (verbatim): <<<" + best.transcript + ">>>\nWrite how a top senior partner would SAY this out loud, in " + LANGNAME[S.lang] + ", within " + DRILLS[S.drill].limit + " seconds of speech (about " + Math.round(DRILLS[S.drill].limit * 2.4) + " words max). Plain spoken text, no bullets, no headings, no markdown. Then a new line starting with 'Pourquoi :' in French naming the 2 structural moves that make it work.";
+}
+
+/* ================= metrics ================= */
+function diffWords(target, said) {
+  function norm(w) { return w.replace(/[’']/g, "'").replace(/-/g, ""); }
+  var a = wordsOf(target).map(norm), b = wordsOf(said).map(norm), raw = target.match(/\S+/g) || [];
+  var n = a.length, m = b.length, L = [];
+  for (var i = 0; i <= n; i++) L.push(new Int16Array(m + 1));
+  for (i = n - 1; i >= 0; i--) for (var j = m - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  var hit = new Array(n).fill(false); i = 0; j = 0;
+  while (i < n && j < m) { if (a[i] === b[j]) { hit[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
+  return { hit: hit, raw: raw, missed: a.filter(function (_, k) { return !hit[k]; }), accuracy: n ? Math.round(100 * hit.filter(Boolean).length / n) : 0 };
+}
+function perMin(x, secs) { return +(x / Math.max(secs, 1) * 60).toFixed(1); }
+function markTranscript(t) {
+  // Highlight fillers and [pause] markers in the verbatim transcript.
+  var re = /(\[pause\]|\b(?:um+|uh+|er+m?|euh+|du coup|en fait|you know|like|basically|genre|voilà|bah)\b)/gi;
+  var out = h("p", { class: "transcript" }), last = 0, m;
+  while ((m = re.exec(t))) { out.append(t.slice(last, m.index), h("mark", null, m[0])); last = m.index + m[0].length; }
+  out.append(t.slice(last));
+  return out;
+}
+
+/* ================= TTS ================= */
+var canSpeak = "speechSynthesis" in window;
+function speak(text, lang) {
+  try {
+    var u = new SpeechSynthesisUtterance(text); u.lang = lang === "fr" ? "fr-FR" : "en-GB"; u.rate = 0.98;
+    var vs = speechSynthesis.getVoices().filter(function (v) { return v.lang && v.lang.replace("_", "-").indexOf(u.lang.slice(0, 2)) === 0; });
+    var pref = vs.filter(function (v) { return /en-GB|fr-FR/.test(v.lang.replace("_", "-")); })[0] || vs[0]; if (pref) u.voice = pref;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) {}
+}
+if (canSpeak) try { speechSynthesis.getVoices(); } catch (e) {}
+
+/* ================= state & views ================= */
+var S = null, screen = "home", timer = null;
+
+function header() {
+  function setLang(l) { DB.settings.lang = l; save(); render(); }
+  return h("header", { class: "top" },
+    h("button", { class: "plain", onclick: goHome }, h("div", { class: "brand" }, "Salle du comité", h("small", null, "Entraînement oral · DD TMT"))),
+    h("div", { class: "row" },
+      S ? null : h("div", { class: "seg", role: "group", "aria-label": "Langue des drills" },
+        ["en", "fr"].map(function (l) { return h("button", { "aria-pressed": String(DB.settings.lang === l), onclick: function () { setLang(l); } }, l.toUpperCase()); })),
+      h("button", { class: "link", onclick: renderSettings, "aria-label": "Réglages" }, "Réglages")));
+}
+function goHome() { stopTimer(); cancelRecording(); try { speechSynthesis.cancel(); } catch (e) {} S = null; render(); }
+
+function renderHome() {
+  if (!DB.settings.key) return [header(),
+    h("section", { class: "card hero" },
+      h("div", { class: "eyebrow" }, "Première ouverture"),
+      h("h2", null, "Branche ta clé Gemini"),
+      h("p", { class: "hint" }, "L'app écoute ta voix et te coache avec le niveau gratuit de Gemini. Crée une clé sur aistudio.google.com (« Get API key »), puis colle-la dans les réglages. Elle reste sur ce téléphone."),
+      h("button", { class: "btn amber block", onclick: renderSettings }, "Ouvrir les réglages"))];
+  var dod = drillOfTheDay(), top = topDefects(3);
+  var trap = Object.keys(DB.profile.trapWords).map(function (w) { return [w, DB.profile.trapWords[w]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 10);
+  return [
+    header(),
+    h("section", { class: "card hero" },
+      h("div", { class: "eyebrow" }, "Drill du jour · " + new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })),
+      h("h2", null, DRILLS[dod.drill].name),
+      h("p", { class: "hint" }, dod.why + ". " + DRILLS[dod.drill].sub),
+      DB.profile.focus ? h("div", { class: "fix" }, h("span", { class: "eyebrow" }, "Focus de la semaine"), h("b", null, DB.profile.focus)) : null,
+      h("div", { class: "row" }, h("span", { class: "chip lv" }, "Niveau " + DB.profile.level + " · " + LEVELS[DB.profile.level]), h("span", { class: "chip" }, DB.settings.lang.toUpperCase())),
+      h("button", { class: "btn amber block", onclick: function () { startDrill(dod.drill); } }, "Lancer le drill du jour")),
+    h("section", { class: "grid2", "aria-label": "Tous les drills" },
+      Object.keys(DRILLS).map(function (k) { return h("button", { class: "tile", onclick: function () { startDrill(k); } }, h("b", null, DRILLS[k].name), h("span", null, DRILLS[k].sub)); })),
+    h("section", { class: "card" },
+      h("div", { class: "eyebrow" }, "Profil de défauts"),
+      top.length
+        ? h("ul", { class: "defects" }, top.map(function (d, i) { return h("li", null, h("span", null, (i + 1) + ". " + d.label), h("span", { class: "n" }, "×" + d.count)); }))
+        : h("p", { class: "hint" }, "Vide pour l'instant. Il se remplit à chaque drill. Commence par le test de référence pour avoir un point de départ."),
+      trap.length ? h("div", null, h("div", { class: "eyebrow", style: "margin-bottom:6px" }, "Mots-pièges"), h("div", { class: "trap" }, trap.map(function (x) { return h("span", { class: "chip bad" }, x[0] + " ×" + x[1]); }))) : null),
+    h("section", { class: "card" },
+      h("div", { class: "eyebrow" }, "Autres modes"),
+      h("div", { class: "grid2" },
+        h("button", { class: "tile", onclick: renderBaseline }, h("b", null, "Test de référence"), h("span", null, "Les 5 mêmes exercices en semaine 1 et en semaine 6.")),
+        h("button", { class: "tile", onclick: renderDebrief }, h("b", null, "Débrief du vendredi"), h("span", null, "Copie ton bilan pour Claude, colle sa mise à jour."))),
+      h("p", { class: "hint" }, "Tes vrais deals et tes transcripts de calls restent dans Claude (Salle du comité sur claude.ai), jamais ici.")),
+    renderHistory()
+  ];
+}
+function renderHistory() {
+  var list = DB.sessions.slice(-12).reverse();
+  return h("section", { class: "card" },
+    h("div", { class: "eyebrow" }, "Dernières séances"),
+    list.length
+      ? h("ul", { class: "hist" }, list.map(function (s) {
+          return h("li", null,
+            h("div", null, (DRILLS[s.drill] || {}).name || s.drill, s.baselineItem ? " · référence" : "",
+              h("small", null, new Date(s.createdAt).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " · " + (s.lang || "").toUpperCase() + (s.fix ? " · " + s.fix : ""))),
+            h("div", { class: "s" }, (s.score1 == null ? "–" : s.score1) + (s.score2 != null ? " → " + s.score2 : "") + "/10"));
+        }))
+      : h("p", { class: "hint" }, "Aucune séance encore. Ton premier drill apparaîtra ici avec son score."));
+}
+
+/* ---------- drill flow ---------- */
+function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+function limitFor(kind) {
+  if (S.drill === "partner") return S.level === 3 ? 45 : kind === "relance" ? 45 : 60;
+  return DRILLS[S.drill].limit;
+}
+function startDrill(drill, opts) {
+  opts = opts || {};
+  goHome();
+  var lang = opts.lang || DB.settings.lang;
+  S = { drill: drill, lang: lang, level: opts.baselineItem ? 2 : DB.profile.level, baselineItem: opts.baselineItem || null, phase: "loading" };
+  if (drill === "artic") {
+    var bank = ARTIC[lang];
+    S.caseObj = { title: "Articulation", facts: [], question: opts.fixedPrompt || bank[Math.floor(Math.random() * bank.length)] };
+    S.phase = "brief"; return render();
+  }
+  if (opts.fixedPrompt) { S.caseObj = { title: BASE_CASE.title, facts: BASE_CASE.facts, question: opts.fixedPrompt }; S.phase = "brief"; return render(); }
+  S.loadingMsg = "Préparation d'un cas fictif…"; render();
+  var mine = S;
+  gemini([{ text: genPrompt(drill, lang, S.level) }]).then(function (r) {
+    if (S !== mine) return;
+    S.caseObj = { title: String(r.title || "Cas"), facts: Array.isArray(r.facts) ? r.facts.map(String) : [], question: String(r.question || "") };
+    S.phase = "brief"; render();
+  }, function (e) { if (S !== mine) return; S.phase = "error"; S.error = errText(e); render(); });
+}
+function viewBrief() {
+  var isArtic = S.drill === "artic";
+  var who = S.drill === "partner" ? LEVELS[S.level] : S.drill === "exec" ? "Président du comité" : "Ton interlocuteur";
+  return [
+    header(),
+    h("div", { class: "row" }, h("span", { class: "chip" }, DRILLS[S.drill].name), S.drill === "partner" ? h("span", { class: "chip lv" }, "Niveau " + S.level) : null, S.baselineItem ? h("span", { class: "chip" }, "Référence") : null),
+    !isArtic ? h("section", { class: "card" },
+      h("div", { class: "eyebrow" }, S.drill === "small" ? "Situation" : "Fact pack"),
+      h("h3", null, S.caseObj.title),
+      S.caseObj.facts.length ? h("ul", { class: "facts" }, S.caseObj.facts.map(function (f) { return h("li", null, f); })) : null) : null,
+    h("section", { class: "card hero" },
+      h("div", { class: "speaker" }, isArtic ? "Lis à voix haute" : who),
+      h("div", { class: "question" }, S.caseObj.question),
+      canSpeak ? h("button", { class: "link", style: "align-self:flex-start", onclick: function () { speak(S.caseObj.question, S.lang); } }, isArtic ? "Écouter le modèle" : "Écouter la question") : null),
+    h("div", { class: "sticky-act" },
+      h("button", { class: "btn amber block", onclick: function () { openRecorder("v1"); } }, "Prêt (" + limitFor("v1") + " s)"),
+      h("button", { class: "link", onclick: goHome }, "Retour"))
+  ];
+}
+function openRecorder(kind) { S.phase = "rec"; S.kind = kind; S.recording = false; render(); }
+function viewRec() {
+  var lim = limitFor(S.kind), isArtic = S.drill === "artic", hideText = isArtic && S.kind === "v2";
+  var prompt = S.kind === "relance" ? S.v1.followup : S.caseObj.question;
+  var bars = []; for (var i = 0; i < 14; i++) bars.push(h("i"));
+  return [
+    h("div", { class: "card hero" },
+      h("div", { id: "clock", class: "clock", role: "timer" }, fmt(lim)),
+      h("div", { class: "bar" }, h("i", { id: "bar" })),
+      h("div", { class: "speaker" }, S.kind === "relance" ? "Relance du partner" : isArtic ? (hideText ? "De mémoire" : "Lis") : S.kind === "v2" ? "Deuxième essai" : "Question"),
+      hideText ? h("p", { class: "hint" }, "Le texte est caché. Répète la phrase de mémoire, au même rythme.") : h("div", { class: "question" }, prompt),
+      S.kind === "v2" && S.fb1 && S.fb1.fix ? h("div", { class: "fix" }, h("span", { class: "eyebrow" }, "Ton fix"), h("b", null, isArtic ? S.fb1.fix : S.fb1.fix.title)) : null),
+    h("div", { class: "meter", id: "meter", "aria-hidden": "true" }, bars),
+    h("button", { id: "mic", class: "mic", onclick: toggleRec }, "Parler"),
+    h("div", { id: "recmsg", class: "notice", hidden: true }),
+    h("p", { class: "hint", style: "text-align:center" }, "Appuie, parle, ré-appuie quand tu as fini. L'enregistrement s'arrête seul à " + lim + " s."),
+    h("button", { class: "link", onclick: function () { cancelRecording(); stopTimer(); S.phase = "brief"; render(); } }, "Annuler")
+  ];
+}
+function toggleRec() {
+  if (S.recording) return finishRec(false);
+  var btn = document.getElementById("mic"), meter = document.querySelectorAll("#meter i"), lim = limitFor(S.kind);
+  btn.disabled = true;
+  startRecording(function (lvl) {
+    var v = Math.min(1, lvl * 9);
+    for (var i = 0; i < meter.length; i++) meter[i].style.height = Math.max(4, Math.round(34 * v * (0.5 + 0.5 * Math.abs(Math.sin(i * 1.7 + Date.now() / 140))))) + "px";
+  }).then(function () {
+    S.recording = true; S.t0 = Date.now(); btn.disabled = false; btn.className = "mic rec"; btn.textContent = "Terminé";
+    var clock = document.getElementById("clock"), bar = document.getElementById("bar");
+    timer = setInterval(function () {
+      var el = (Date.now() - S.t0) / 1000, left = lim - el;
+      clock.textContent = fmt(left);
+      clock.className = "clock" + (left <= 0 ? " cut" : left <= 10 ? " warn" : "");
+      bar.style.width = Math.min(100, 100 * el / lim) + "%";
+      if (left <= 0) finishRec(true);
+    }, 200);
+  }, function (e) {
+    btn.disabled = false;
+    var m = document.getElementById("recmsg"); m.hidden = false; m.className = "notice err";
+    m.textContent = e && e.name === "NotAllowedError"
+      ? "Le micro est refusé. Autorise-le pour ce site dans les réglages du navigateur, puis réessaie."
+      : "Impossible d'ouvrir le micro (" + ((e && (e.name || e.message)) || "erreur") + ").";
+    cancelRecording();
+  });
+}
+function finishRec(cut) {
+  stopTimer();
+  var r = stopRecording(); S.recording = false;
+  if (!r) return;
+  if (r.stats.speaking < 1) {
+    var m = document.getElementById("recmsg"); m.hidden = false; m.className = "notice err";
+    m.textContent = "Je n'ai presque rien entendu. Vérifie que le micro n'est pas couvert, puis réessaie.";
+    var b = document.getElementById("mic"); b.className = "mic"; b.textContent = "Parler"; return;
+  }
+  var att = { secs: Math.round(r.secs), stats: r.stats, cut: cut, wav: r.wav };
+  if (cut && S.drill === "partner" && S.level === 3) S.cutNote = "Le comité t'a coupé à 45 s.";
+  analyse(att);
+}
+function analyse(att) {
+  var kind = S.kind, mine = S;
+  if (kind === "relance") att.relanceOf = { transcript: S.v1.transcript, followup: S.v1.followup };
+  S.phase = "loading";
+  S.loadingMsg = kind === "v1" && S.drill === "partner" ? "Le partner t'écoute et prépare sa relance…" : kind === "v2" ? "Comparaison avec ton premier essai…" : "Écoute et analyse de ta réponse…";
+  render();
+  blobToB64(att.wav).then(function (b64) {
+    var parts;
+    if (S.drill === "artic") parts = [{ text: articPrompt(S, kind === "v2") }, audioPart(b64)];
+    else if (S.drill === "partner" && kind === "v1") parts = [{ text: relancePrompt(S) }, audioPart(b64)];
+    else parts = [{ text: feedbackPrompt(S, att, kind === "v2" ? S.fb1 : null) }, audioPart(b64)];
+    return gemini(parts);
+  }).then(function (r) {
+    if (S !== mine) return;
+    att.transcript = String(r.transcript || "");
+    delete att.wav;
+    if (S.drill === "artic") return articDone(kind, att, r);
+    if (S.drill === "partner" && kind === "v1") {
+      S.v1 = att; S.v1.followup = String(r.followup || "");
+      if (canSpeak) speak(S.v1.followup, S.lang);
+      return openRecorder("relance");
+    }
+    var fb = {
+      score: Math.max(0, Math.min(10, Math.round(+r.score || 0))), worked: String(r.worked || ""),
+      fix: { title: String((r.fix && r.fix.title) || ""), detail: String((r.fix && r.fix.detail) || "") },
+      delivery: String(r.delivery || ""),
+      secondsToConclusion: r.secondsToConclusion == null ? null : Math.round(+r.secondsToConclusion),
+      numberEarly: !!r.numberEarly, fillers: Math.round(+r.fillers || 0), falseStarts: Math.round(+r.falseStarts || 0),
+      heldPushback: r.heldPushback == null ? null : !!r.heldPushback,
+      fixApplied: r.fixApplied == null ? null : !!r.fixApplied, verdict: String(r.verdict || ""),
+      defects: Array.isArray(r.defects) ? r.defects.slice(0, 3) : []
+    };
+    if (kind === "v2") { S.v2 = att; S.fb2 = fb; S.phase = "compare"; finishSession(); }
+    else { if (kind === "relance") S.v1.relance = att; else S.v1 = att; S.fb1 = fb; S.phase = "feedback"; }
+    render();
+  }).catch(function (e) {
+    if (S !== mine) return;
+    S.phase = "error"; S.error = errText(e); S.retry = function () { analyseRetry(att, kind); }; render();
+  });
+}
+function analyseRetry(att, kind) { S.kind = kind; analyse(att); }
+
+function metricsBlock(att, fb) {
+  var secs = Math.max(1, att.stats.speaking || att.secs);
+  var items = [
+    [fb.secondsToConclusion != null ? fb.secondsToConclusion + " s" : "jamais", "avant ta conclusion"],
+    [perMin(fb.fillers, secs), "mots parasites / min"],
+    [perMin(fb.falseStarts, secs), "faux départs / min"],
+    [att.stats.pauses + (att.stats.longest ? " · " + att.stats.longest + " s" : ""), "pauses > 1,5 s · la plus longue"],
+    [att.secs + " s", att.cut ? "coupé" : "durée"],
+    S.drill === "partner" ? [fb.heldPushback == null ? "–" : fb.heldPushback ? "oui" : "non", "tenu au push-back"] : [fb.numberEarly ? "oui" : "non", "chiffre tôt"]
+  ];
+  return h("div", { class: "metrics" }, items.map(function (x) { return h("div", { class: "metric" }, h("b", null, String(x[0])), h("span", null, x[1])); }));
+}
+function viewFeedback() {
+  var fb = S.fb1, main = S.v1.relance || S.v1;
+  return [
+    header(),
+    S.cutNote ? h("div", { class: "notice err" }, S.cutNote) : null,
+    h("section", { class: "card hero" },
+      h("div", { class: "row", style: "justify-content:space-between" }, h("div", { class: "score" }, h("b", null, fb.score), h("span", null, "/10")), S.drill === "partner" ? h("span", { class: "chip lv" }, "Niveau " + S.level) : null),
+      h("p", { style: "margin:0" }, h("span", { class: "chip good" }, "Ce qui a marché"), " ", fb.worked),
+      h("div", { class: "fix" }, h("span", { class: "eyebrow" }, "Le fix, un seul"), h("b", null, fb.fix.title), h("span", null, fb.fix.detail)),
+      fb.delivery ? h("p", { class: "hint" }, "Voix : " + fb.delivery) : null),
+    metricsBlock(main, fb),
+    h("details", { class: "card" }, h("summary", null, "Ce que tu as dit, mot pour mot"),
+      markTranscript(S.v1.transcript),
+      S.v1.relance ? [h("div", { class: "speaker" }, "Relance : " + S.v1.followup), markTranscript(S.v1.relance.transcript)] : null),
+    h("div", { class: "sticky-act" },
+      h("button", { class: "btn amber block", onclick: function () { S.cutNote = null; openRecorder("v2"); } }, "Refais-le avec le fix"),
+      h("button", { class: "link", onclick: function () { finishSession(); goHome(); } }, "Enregistrer sans refaire"))
+  ];
+}
+function viewCompare() {
+  var a = S.fb1, b = S.fb2;
+  return [
+    header(),
+    h("section", { class: "card hero" },
+      h("div", { class: "eyebrow" }, "v1 → v2"),
+      h("div", { class: "cmp" },
+        h("div", { class: "score" }, h("b", null, a.score), h("span", null, "/10")),
+        h("span", { class: "eyebrow" }, "→"),
+        h("div", { class: "score" }, h("b", { style: "color:" + (b.score > a.score ? "var(--good)" : b.score < a.score ? "var(--bad)" : "inherit") }, b.score), h("span", null, "/10"))),
+      h("div", { class: "row" }, h("span", { class: b.fixApplied ? "chip good" : "chip bad" }, b.fixApplied ? "Fix appliqué" : "Fix pas encore appliqué")),
+      b.verdict ? h("p", { style: "margin:0" }, b.verdict) : null,
+      h("div", { class: "fix" }, h("span", { class: "eyebrow" }, "Prochain fix"), h("b", null, b.fix.title), h("span", null, b.fix.detail))),
+    metricsBlock(S.v2, b),
+    S.levelChange ? h("div", { class: "notice" }, S.levelChange) : null,
+    h("details", { class: "card" }, h("summary", null, "Ton deuxième essai, mot pour mot"), markTranscript(S.v2.transcript)),
+    h("section", { class: "card", id: "modelcard" },
+      h("div", { class: "eyebrow" }, "Version partner senior"),
+      S.model ? h("p", { class: "transcript" }, S.model) : h("button", { class: "btn ghost", onclick: loadModel }, "Voir comment un senior le dirait"),
+      S.model && canSpeak ? h("button", { class: "link", style: "align-self:flex-start", onclick: function () { speak(S.model.split(/\n\s*Pourquoi\s*:/)[0], S.lang); } }, "L'écouter") : null),
+    h("div", { class: "sticky-act" },
+      h("button", { class: "btn block", onclick: function () { startDrill(S.drill, { lang: S.lang }); } }, "Drill suivant"),
+      h("button", { class: "link", onclick: goHome }, "Accueil"))
+  ];
+}
+function loadModel() {
+  var card = document.getElementById("modelcard"), mine = S;
+  card.replaceChildren(h("div", { class: "eyebrow" }, "Version partner senior"), h("div", { class: "thinking" }, h("span", { class: "dot" }), "Rédaction…"));
+  gemini([{ text: modelPrompt(S) }], false).then(function (t) { if (S !== mine) return; S.model = t.trim(); render(); },
+    function (e) { if (S !== mine) return; card.replaceChildren(h("div", { class: "notice err" }, errText(e))); });
+}
+function finishSession() {
+  if (S.saved) return; S.saved = true;
+  [S.fb1, S.fb2].forEach(function (f) { if (f) addDefects(f.defects); });
+  if (S.drill === "partner" && !S.baselineItem) {
+    if (S.fb1.score >= 7) {
+      DB.profile.streak = (DB.profile.streak || 0) + 1;
+      if (DB.profile.streak >= 2 && DB.profile.level < 3) { DB.profile.level++; DB.profile.streak = 0; S.levelChange = "Deux bonnes réponses d'affilée : tu passes au niveau " + DB.profile.level + " (" + LEVELS[DB.profile.level] + ")."; }
+    } else DB.profile.streak = 0;
+  }
+  var main = S.v1.relance || S.v1, secs = Math.max(1, S.v1.stats.speaking);
+  DB.sessions.push({
+    id: Date.now().toString(36), createdAt: new Date().toISOString(),
+    drill: S.drill, lang: S.lang, level: S.level, baselineItem: S.baselineItem,
+    caseTitle: S.caseObj.title, question: S.caseObj.question,
+    v1: S.v1.transcript, followup: S.v1.followup || null, v1relance: S.v1.relance ? S.v1.relance.transcript : null, v2: S.v2 ? S.v2.transcript : null,
+    score1: S.fb1.score, score2: S.fb2 ? S.fb2.score : null, fix: S.fb1.fix.title, fixApplied: S.fb2 ? S.fb2.fixApplied : null,
+    secondsToConclusion: S.fb1.secondsToConclusion, fillersPerMin: perMin(S.fb1.fillers, secs), falseStartsPerMin: perMin(S.fb1.falseStarts, secs),
+    pauses: main.stats.pauses, heldPushback: S.fb1.heldPushback, defects: S.fb1.defects.map(function (d) { return d.key || d; })
+  });
+  save();
+}
+
+/* ---------- articulation ---------- */
+function articDone(kind, att, r) {
+  var fb = {
+    score: Math.max(0, Math.min(10, Math.round(+r.score || 0))),
+    issues: Array.isArray(r.issues) ? r.issues.slice(0, 5) : [], rhythm: String(r.rhythm || ""), fix: String(r.fix || ""),
+    diff: diffWords(S.caseObj.question, att.transcript)
+  };
+  if (kind === "v1") { S.v1 = att; S.fb1 = fb; }
+  else {
+    S.v2 = att; S.fb2 = fb;
+    var words = uniq(S.fb1.issues.concat(fb.issues).map(function (x) { return String(x.word || "").toLowerCase(); }).filter(function (w) { return w.length > 2; }));
+    addTrapWords(words);
+    if (S.fb1.issues.length >= 2) addDefects([{ key: "pronunciation" }]);
+    DB.sessions.push({ id: Date.now().toString(36), createdAt: new Date().toISOString(), drill: "artic", lang: S.lang, baselineItem: S.baselineItem,
+      question: S.caseObj.question, v1: S.v1.transcript, v2: att.transcript, score1: S.fb1.score, score2: fb.score,
+      accuracy1: S.fb1.diff.accuracy, accuracy2: fb.diff.accuracy, trapWords: words, fix: S.fb1.fix });
+    save();
+  }
+  S.phase = "articResult"; render();
+}
+function viewArticResult() {
+  var second = !!S.fb2, fb = second ? S.fb2 : S.fb1, att = second ? S.v2 : S.v1;
+  return [
+    header(),
+    h("section", { class: "card hero" },
+      h("div", { class: "eyebrow" }, second ? "De mémoire" : "Lecture"),
+      h("div", { class: "row", style: "justify-content:space-between" },
+        h("div", { class: "score" }, h("b", null, fb.score), h("span", null, "/10")),
+        h("span", { class: "chip" }, fb.diff.accuracy + "% des mots")),
+      h("p", { class: "diff" }, fb.diff.raw.map(function (w, i) { return [h("span", { class: fb.diff.hit[i] ? "" : "miss" }, w), " "]; })),
+      fb.issues.length ? h("ul", { class: "pron" }, fb.issues.map(function (x) { return h("li", null, h("b", null, x.word), h("span", null, x.issue), h("span", { class: "hint" }, x.tip)); })) : h("p", { class: "hint" }, "Rien à signaler sur la prononciation."),
+      fb.rhythm ? h("p", { class: "hint" }, "Rythme : " + fb.rhythm) : null,
+      fb.fix ? h("div", { class: "fix" }, h("span", { class: "eyebrow" }, "Au prochain essai"), h("b", null, fb.fix)) : null,
+      canSpeak ? h("button", { class: "link", style: "align-self:flex-start", onclick: function () { speak(S.caseObj.question, S.lang); } }, "Écouter le modèle") : null),
+    h("details", { class: "card" }, h("summary", null, "Ce que Gemini a entendu"), markTranscript(att.transcript)),
+    h("div", { class: "sticky-act" },
+      second ? h("button", { class: "btn block", onclick: function () { startDrill("artic", { lang: S.lang }); } }, "Phrase suivante")
+             : h("button", { class: "btn amber block", onclick: function () { openRecorder("v2"); } }, "Maintenant, de mémoire"),
+      h("button", { class: "link", onclick: goHome }, "Accueil"))
+  ];
+}
+
+/* ---------- baseline, debrief, settings ---------- */
+function renderBaseline() {
+  goHome(); screen = "baseline";
+  var runs = DB.sessions.filter(function (s) { return s.baselineItem; }), done = runs.map(function (s) { return s.baselineItem; });
+  $app.replaceChildren(header(),
+    h("section", { class: "card" },
+      h("h2", null, "Test de référence"),
+      h("p", { class: "hint" }, "Les 5 mêmes exercices, en anglais, cette semaine puis dans 6 semaines. Ajoute un transcript de vrai call dans Claude. On fixera les cibles chiffrées après cette baseline."),
+      h("ul", { class: "hist" }, BASELINE.map(function (b) {
+        var d = done.indexOf(b.id) >= 0;
+        return h("li", null, h("div", null, b.label, h("small", null, d ? "Fait au moins une fois" : "À faire")),
+          h("button", { class: "btn ghost", onclick: function () { startDrill(b.drill, { lang: "en", baselineItem: b.id, fixedPrompt: b.prompt }); } }, d ? "Refaire" : "Lancer"));
+      }))),
+    runs.length ? h("section", { class: "card" }, h("div", { class: "eyebrow" }, "Résultats de référence"),
+      h("ul", { class: "hist" }, runs.map(function (s) {
+        var b = BASELINE.filter(function (x) { return x.id === s.baselineItem; })[0];
+        return h("li", null, h("div", null, (b && b.label) || s.baselineItem,
+          h("small", null, new Date(s.createdAt).toLocaleDateString("fr-FR") + (s.secondsToConclusion != null ? " · conclusion à " + s.secondsToConclusion + " s" : "") + (s.fillersPerMin != null ? " · " + s.fillersPerMin + " parasites/min" : ""))),
+          h("div", { class: "s" }, s.score1 + "/10"));
+      }))) : null,
+    h("button", { class: "link", onclick: goHome }, "Retour"));
+}
+function weeklyReport() {
+  var since = new Date(Date.now() - 7 * 864e5).toISOString();
+  var week = DB.sessions.filter(function (s) { return s.createdAt >= since; });
+  return JSON.stringify({ kind: "salle-du-comite/bilan", generatedAt: new Date().toISOString(), profile: DB.profile, sessionsLast7Days: week }, null, 1);
+}
+function copyText(text, btn) {
+  function ok() { btn.textContent = "Copié"; setTimeout(function () { btn.textContent = "Copier le bilan"; }, 2000); }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
+  function fallback() { var ta = document.getElementById("report"); ta.hidden = false; ta.value = text; ta.select(); btn.textContent = "Sélectionné : copie-le"; }
+}
+function renderDebrief() {
+  goHome(); screen = "debrief";
+  var copyBtn = h("button", { class: "btn amber block" }, "Copier le bilan");
+  copyBtn.onclick = function () { copyText(weeklyReport(), copyBtn); };
+  var msg = h("div", { class: "notice", hidden: true });
+  var applyBtn = h("button", { class: "btn block" }, "Appliquer la mise à jour");
+  applyBtn.onclick = function () {
+    var raw = document.getElementById("upd").value.trim();
+    msg.hidden = false;
+    try {
+      var u = parseJSON(raw);
+      if (u.focus) DB.profile.focus = String(u.focus).slice(0, 160);
+      if (u.level && [1, 2, 3].indexOf(+u.level) >= 0) DB.profile.level = +u.level;
+      if (u.defects && typeof u.defects === "object") {
+        if (Array.isArray(u.defects)) addDefects(u.defects, 2);
+        else Object.keys(u.defects).forEach(function (k) { var v = u.defects[k]; DB.profile.defects[k] = { label: (v && v.label) || DEFECTS[k] || k, count: +(v && v.count) || +v || 1, last: new Date().toISOString() }; });
+      }
+      if (u.trapWords && typeof u.trapWords === "object") Object.keys(u.trapWords).forEach(function (w) { DB.profile.trapWords[w] = +u.trapWords[w] || 1; });
+      save(); msg.className = "notice"; msg.textContent = "Profil mis à jour." + (u.focus ? " Focus : " + u.focus : "");
+    } catch (e) { msg.className = "notice err"; msg.textContent = "Ce texte n'est pas une mise à jour valide. Colle le bloc JSON que Claude t'a donné, en entier."; }
+  };
+  $app.replaceChildren(header(),
+    h("section", { class: "card" },
+      h("h2", null, "Débrief du vendredi"),
+      h("p", { class: "hint" }, "1. Copie ton bilan de la semaine et colle-le dans ton projet Claude. Claude le croise avec tes calls réels."),
+      copyBtn,
+      h("textarea", { id: "report", hidden: true, readonly: true, "aria-label": "Bilan à copier" }),
+      h("p", { class: "hint" }, "2. Claude te renvoie un bloc JSON (focus, défauts, niveau). Colle-le ici."),
+      h("textarea", { id: "upd", placeholder: "{ \"focus\": \"…\", \"defects\": { … } }" }),
+      applyBtn, msg),
+    h("button", { class: "link", onclick: goHome }, "Retour"));
+}
+function renderSettings() {
+  goHome(); screen = "settings";
+  var msg = h("div", { class: "notice", hidden: true });
+  var keyIn = h("input", { id: "key", type: "password", autocomplete: "off", value: DB.settings.key, placeholder: "AIza…" });
+  var modelIn = h("input", { id: "model", type: "text", autocomplete: "off", value: DB.settings.model });
+  var saveBtn = h("button", { class: "btn amber block" }, "Enregistrer et tester");
+  saveBtn.onclick = function () {
+    DB.settings.key = keyIn.value.trim(); DB.settings.model = modelIn.value.trim() || "gemini-2.5-flash"; save();
+    msg.hidden = false; msg.className = "notice"; msg.textContent = "Test en cours…"; saveBtn.disabled = true;
+    gemini([{ text: "Reply with only JSON: {\"ok\": true}" }]).then(function () { msg.textContent = "Ça marche. Tu peux lancer un drill."; },
+      function (e) { msg.className = "notice err"; msg.textContent = errText(e); }).then(function () { saveBtn.disabled = false; });
+  };
+  var exp = h("button", { class: "btn ghost" }, "Exporter tout");
+  exp.onclick = function () { var ta = document.getElementById("dump"); ta.hidden = false; ta.value = JSON.stringify({ profile: DB.profile, sessions: DB.sessions }); ta.select(); try { navigator.clipboard.writeText(ta.value); exp.textContent = "Copié"; } catch (e) {} };
+  var imp = h("button", { class: "btn ghost" }, "Importer");
+  imp.onclick = function () {
+    var ta = document.getElementById("dump"); if (ta.hidden) { ta.hidden = false; ta.value = ""; ta.placeholder = "Colle ici l'export de ton autre téléphone, puis appuie à nouveau sur Importer"; return; }
+    try { var d = JSON.parse(ta.value); if (!d.profile || !Array.isArray(d.sessions)) throw 0;
+      var ids = DB.sessions.map(function (s) { return s.id; });
+      DB.sessions = DB.sessions.concat(d.sessions.filter(function (s) { return ids.indexOf(s.id) < 0; })).sort(function (a, b) { return a.createdAt.localeCompare(b.createdAt); });
+      DB.profile = Object.assign(DB.profile, d.profile); save(); msg.hidden = false; msg.className = "notice"; msg.textContent = "Import fait : " + d.sessions.length + " séances fusionnées.";
+    } catch (e) { msg.hidden = false; msg.className = "notice err"; msg.textContent = "Ce texte n'est pas un export valide."; }
+  };
+  $app.replaceChildren(header(),
+    h("section", { class: "card" },
+      h("h2", null, "Réglages"),
+      h("label", { class: "field" }, h("span", { class: "eyebrow" }, "Clé API Gemini"), keyIn,
+        h("span", { class: "hint" }, "Gratuite sur aistudio.google.com → Get API key. Stockée uniquement sur ce téléphone.")),
+      h("label", { class: "field" }, h("span", { class: "eyebrow" }, "Modèle"), modelIn,
+        h("span", { class: "hint" }, "gemini-2.5-flash par défaut. Change-le si Google en propose un plus récent dans le niveau gratuit.")),
+      saveBtn, msg),
+    h("section", { class: "card" },
+      h("div", { class: "eyebrow" }, "Tes données"),
+      h("p", { class: "hint" }, "Ton historique est stocké sur ce téléphone. Pour passer de l'Android à l'iPhone, exporte ici et importe là-bas."),
+      h("div", { class: "row" }, exp, imp),
+      h("textarea", { id: "dump", hidden: true, "aria-label": "Export ou import" }),
+      h("p", { class: "hint" }, "Confidentialité : sur le niveau gratuit, Google peut utiliser ce que tu envoies pour améliorer ses modèles. N'utilise ici que les cas fictifs de l'app.")),
+    h("button", { class: "link", onclick: goHome }, "Retour"));
+}
+
+/* ================= router ================= */
+function render() {
+  var v;
+  if (!S) { screen = "home"; v = renderHome(); }
+  else switch (S.phase) {
+    case "loading": v = [header(), h("div", { class: "card" }, h("div", { class: "thinking" }, h("span", { class: "dot" }), S.loadingMsg || "Un instant…"))]; break;
+    case "error": v = [header(), h("div", { class: "notice err" }, S.error),
+      h("button", { class: "btn", onclick: function () { if (S.retry) { var f = S.retry; S.retry = null; f(); } else startDrill(S.drill, { lang: S.lang }); } }, "Relancer"),
+      h("button", { class: "link", onclick: goHome }, "Accueil")]; break;
+    case "brief": v = viewBrief(); break;
+    case "rec": v = viewRec(); break;
+    case "feedback": v = viewFeedback(); break;
+    case "compare": v = viewCompare(); break;
+    case "articResult": v = viewArticResult(); break;
+    default: v = renderHome();
+  }
+  $app.replaceChildren.apply($app, v.filter(Boolean));
+  window.scrollTo(0, 0);
+}
+render();
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(function () {});
+})();
+</script>
+</body>
+</html>
