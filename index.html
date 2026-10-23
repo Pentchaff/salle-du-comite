@@ -166,7 +166,8 @@ function load() {
   var d = null;
   try { d = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
   d = d || {};
-  d.settings = Object.assign({ key: "", model: "gemini-2.5-flash", lang: "en" }, d.settings || {});
+  d.settings = Object.assign({ key: "", model: "", lang: "en" }, d.settings || {});
+  if (d.settings.model === "gemini-2.5-flash") d.settings.model = ""; // old default, no longer free for new keys
   d.profile = Object.assign({ level: 2, streak: 0, defects: {}, trapWords: {}, focus: "" }, d.profile || {});
   d.sessions = d.sessions || [];
   return d;
@@ -326,18 +327,21 @@ function blobToB64(blob) {
 }
 
 /* ================= Gemini ================= */
+// Free-tier candidates, best first. "Enregistrer et tester" keeps the first one that answers.
+var MODELS = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
 function gemini(parts, json) {
   var key = DB.settings.key;
   if (!key) return Promise.reject({ code: "no_key" });
-  var model = (DB.settings.model || "gemini-2.5-flash").trim();
+  var model = (DB.settings.model || MODELS[0]).trim();
   var body = { contents: [{ role: "user", parts: parts }], generationConfig: { temperature: 0.7 } };
   if (json !== false) body.generationConfig.responseMimeType = "application/json";
   return fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent", {
     method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body)
   }).then(function (r) {
     if (!r.ok) return r.text().then(function (t) {
-      var code = r.status === 429 ? "rate_limited" : (r.status === 400 && /API key/i.test(t)) || r.status === 403 ? "bad_key" : r.status === 404 ? "bad_model" : "upstream";
-      throw { code: code, status: r.status, message: t.slice(0, 300) };
+      var code = r.status === 402 ? "billing" : r.status === 429 && /limit: ?0\b/.test(t) ? "no_free_tier" : r.status === 429 ? "rate_limited" : (r.status === 400 && /API key/i.test(t)) || r.status === 403 ? "bad_key" : r.status === 404 ? "bad_model" : "upstream";
+      var gm = t; try { gm = JSON.parse(t).error.message || t; } catch (x) {}
+      throw { code: code, status: r.status, message: String(gm).slice(0, 220) };
     });
     return r.json();
   }).then(function (d) {
@@ -359,11 +363,13 @@ function errText(e) {
   var c = e && e.code;
   if (c === "no_key") return "Ajoute ta clé Gemini dans les réglages.";
   if (c === "bad_key") return "La clé Gemini est refusée. Vérifie-la dans les réglages.";
-  if (c === "bad_model") return "Le modèle indiqué dans les réglages n'existe pas. Remets gemini-2.5-flash ou un modèle listé dans AI Studio.";
+  if (c === "billing") return "Ta clé est rattachée à un projet Google avec facturation dont le crédit prépayé est à zéro. Crée une clé dans un NOUVEAU projet sans facturation (AI Studio → Get API key → Create API key → « Create API key in new project »).";
+  if (c === "no_free_tier") return "Ce modèle n'est pas gratuit pour ta clé. Laisse le champ Modèle vide et appuie sur « Enregistrer et tester » : l'app cherche un modèle gratuit.";
+  if (c === "bad_model") return "Le modèle indiqué dans les réglages n'existe pas. Vide le champ Modèle et relance le test.";
   if (c === "rate_limited") return "Limite gratuite de Gemini atteinte pour le moment. Attends une minute, puis relance.";
   if (c === "network") return "Pas de connexion. Vérifie le réseau, puis relance.";
   if (c === "invalid_json") return "Réponse mal formée. Relance.";
-  return "Gemini n'a pas répondu (" + (c || "erreur") + (e && e.status ? " " + e.status : "") + "). Relance dans un instant.";
+  return "Gemini n'a pas répondu (" + (c || "erreur") + (e && e.status ? " " + e.status : "") + ")." + (e && e.message ? " Google : « " + e.message + " »" : "");
 }
 
 /* ================= prompts ================= */
@@ -854,13 +860,23 @@ function renderSettings() {
   goHome(); screen = "settings";
   var msg = h("div", { class: "notice", hidden: true });
   var keyIn = h("input", { id: "key", type: "password", autocomplete: "off", value: DB.settings.key, placeholder: "AIza…" });
-  var modelIn = h("input", { id: "model", type: "text", autocomplete: "off", value: DB.settings.model });
+  var modelIn = h("input", { id: "model", type: "text", autocomplete: "off", value: DB.settings.model, placeholder: "Vide = choix automatique d'un modèle gratuit" });
   var saveBtn = h("button", { class: "btn amber block" }, "Enregistrer et tester");
   saveBtn.onclick = function () {
-    DB.settings.key = keyIn.value.trim(); DB.settings.model = modelIn.value.trim() || "gemini-2.5-flash"; save();
-    msg.hidden = false; msg.className = "notice"; msg.textContent = "Test en cours…"; saveBtn.disabled = true;
-    gemini([{ text: "Reply with only JSON: {\"ok\": true}" }]).then(function () { msg.textContent = "Ça marche. Tu peux lancer un drill."; },
-      function (e) { msg.className = "notice err"; msg.textContent = errText(e); }).then(function () { saveBtn.disabled = false; });
+    DB.settings.key = keyIn.value.trim(); save();
+    msg.hidden = false; msg.className = "notice"; saveBtn.disabled = true;
+    var typed = modelIn.value.trim(), list = typed ? [typed] : MODELS.slice(), firstErr = null;
+    (function next() {
+      if (!list.length) { msg.className = "notice err"; msg.textContent = errText(firstErr); saveBtn.disabled = false; return; }
+      var m = list.shift(); DB.settings.model = m; msg.textContent = "Test de " + m + "…";
+      gemini([{ text: "Reply with only JSON: {\"ok\": true}" }]).then(function () {
+        save(); modelIn.value = m; msg.textContent = "Ça marche avec " + m + ". Tu peux lancer un drill."; saveBtn.disabled = false;
+      }, function (e) {
+        if (!firstErr || firstErr.code === "bad_model" || firstErr.code === "no_free_tier") firstErr = e;
+        if (e.code === "bad_key" || e.code === "billing" || e.code === "network") { list = []; firstErr = e; }
+        next();
+      });
+    })();
   };
   var exp = h("button", { class: "btn ghost" }, "Exporter tout");
   exp.onclick = function () { var ta = document.getElementById("dump"); ta.hidden = false; ta.value = JSON.stringify({ profile: DB.profile, sessions: DB.sessions }); ta.select(); try { navigator.clipboard.writeText(ta.value); exp.textContent = "Copié"; } catch (e) {} };
@@ -879,7 +895,7 @@ function renderSettings() {
       h("label", { class: "field" }, h("span", { class: "eyebrow" }, "Clé API Gemini"), keyIn,
         h("span", { class: "hint" }, "Gratuite sur aistudio.google.com → Get API key. Stockée uniquement sur ce téléphone.")),
       h("label", { class: "field" }, h("span", { class: "eyebrow" }, "Modèle"), modelIn,
-        h("span", { class: "hint" }, "gemini-2.5-flash par défaut. Change-le si Google en propose un plus récent dans le niveau gratuit.")),
+        h("span", { class: "hint" }, "Laisse vide : le test essaie les modèles gratuits un par un et garde le premier qui répond.")),
       saveBtn, msg),
     h("section", { class: "card" },
       h("div", { class: "eyebrow" }, "Tes données"),
